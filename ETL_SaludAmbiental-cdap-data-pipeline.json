@@ -1,0 +1,426 @@
+{
+    "artifact": {
+        "name": "cdap-data-pipeline",
+        "version": "6.11.1",
+        "scope": "SYSTEM"
+    },
+    "description": "",
+    "name": "ETL_SaludAmbiental",
+    "change": {
+        "description": ""
+    },
+    "parentVersion": "",
+    "config": {
+        "resources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "driverResources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "connections": [
+            {
+                "from": "GCSFile",
+                "to": "Wrangler"
+            },
+            {
+                "from": "Wrangler",
+                "to": "HechosSaludAmbiental"
+            },
+            {
+                "from": "GCS5",
+                "to": "Contaminante"
+            },
+            {
+                "from": "GCS4",
+                "to": "Enfermedad"
+            },
+            {
+                "from": "GCS2",
+                "to": "Lugar"
+            },
+            {
+                "from": "GCS3",
+                "to": "Fecha"
+            }
+        ],
+        "postActions": [],
+        "properties": {},
+        "processTimingEnabled": true,
+        "stageLoggingEnabled": true,
+        "stages": [
+            {
+                "name": "GCSFile",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "GCSFile",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "path": "gs://biproyecto/HechosSaludAmbiental.csv",
+                        "fileEncoding": "UTF-8",
+                        "useConnection": "true",
+                        "format": "csv",
+                        "enableQuotedValues": "false",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "skipHeader": "true",
+                        "referenceName": "biproyecto.HechosSaludAmbiental.csv",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_FK\",\"type\":\"int\"},{\"name\":\"Lugar_FK\",\"type\":\"int\"},{\"name\":\"Enfermedad_FK\",\"type\":\"int\"},{\"name\":\"Paciente_FK\",\"type\":\"int\"},{\"name\":\"Contaminante_FK\",\"type\":\"int\"},{\"name\":\"Concentracion\",\"type\":\"double\"},{\"name\":\"NumeroAfectados\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_os0a4\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_as0a4\",\"type\":\"int\"},{\"name\":\"TotalHabitantes0a4\",\"type\":\"int\"}]}",
+                        "sampleSize": "1000",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_FK\",\"type\":\"int\"},{\"name\":\"Lugar_FK\",\"type\":\"int\"},{\"name\":\"Enfermedad_FK\",\"type\":\"int\"},{\"name\":\"Paciente_FK\",\"type\":\"int\"},{\"name\":\"Contaminante_FK\",\"type\":\"int\"},{\"name\":\"Concentracion\",\"type\":\"double\"},{\"name\":\"NumeroAfectados\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_os0a4\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_as0a4\",\"type\":\"int\"},{\"name\":\"TotalHabitantes0a4\",\"type\":\"int\"}]}",
+                "id": "GCSFile"
+            },
+            {
+                "name": "Wrangler",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "Wrangler",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "precondition": "false",
+                        "workspaceId": "ebc2ca91-0a4d-4588-a12c-c61c0aed1803",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Fecha_FK\",\"type\":\"int\"},{\"name\":\"Lugar_FK\",\"type\":\"int\"},{\"name\":\"Enfermedad_FK\",\"type\":\"int\"},{\"name\":\"Paciente_FK\",\"type\":\"int\"},{\"name\":\"Contaminante_FK\",\"type\":\"int\"},{\"name\":\"Concentracion\",\"type\":\"double\"},{\"name\":\"NumeroAfectados\",\"type\":\"string\"},{\"name\":\"NumeroHabitantesNi_os0a4\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_as0a4\",\"type\":\"int\"},{\"name\":\"TotalHabitantes0a4\",\"type\":\"int\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Fecha_FK\",\"type\":\"int\"},{\"name\":\"Lugar_FK\",\"type\":\"int\"},{\"name\":\"Enfermedad_FK\",\"type\":\"int\"},{\"name\":\"Paciente_FK\",\"type\":\"int\"},{\"name\":\"Contaminante_FK\",\"type\":\"int\"},{\"name\":\"Concentracion\",\"type\":\"double\"},{\"name\":\"NumeroAfectados\",\"type\":\"string\"},{\"name\":\"NumeroHabitantesNi_os0a4\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_as0a4\",\"type\":\"int\"},{\"name\":\"TotalHabitantes0a4\",\"type\":\"int\"}]}",
+                "id": "Wrangler"
+            },
+            {
+                "name": "HechosSaludAmbiental",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "HechosSaludAmbiental",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "dataset": "datosSaludAmbiental",
+                        "table": "HechosSaludAmbiental",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "connection": "${conn(BigQuery Default)}"
+                    }
+                },
+                "inputSchema": [
+                    {
+                        "name": "Wrangler",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Fecha_FK\",\"type\":\"int\"},{\"name\":\"Lugar_FK\",\"type\":\"int\"},{\"name\":\"Enfermedad_FK\",\"type\":\"int\"},{\"name\":\"Paciente_FK\",\"type\":\"int\"},{\"name\":\"Contaminante_FK\",\"type\":\"int\"},{\"name\":\"Concentracion\",\"type\":\"double\"},{\"name\":\"NumeroAfectados\",\"type\":\"string\"},{\"name\":\"NumeroHabitantesNi_os0a4\",\"type\":\"int\"},{\"name\":\"NumeroHabitantesNi_as0a4\",\"type\":\"int\"},{\"name\":\"TotalHabitantes0a4\",\"type\":\"int\"}]}"
+                    }
+                ],
+                "id": "HechosSaludAmbiental"
+            },
+            {
+                "name": "GCS5",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "GCS5",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "referenceName": "biproyecto.Contaminante.csv",
+                        "path": "gs://biproyecto/Contaminante.csv",
+                        "format": "csv",
+                        "sampleSize": "1000",
+                        "enableQuotedValues": "false",
+                        "skipHeader": "true",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Contaminante_PK\",\"type\":\"int\"},{\"name\":\"Nombre\",\"type\":\"string\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Contaminante_PK\",\"type\":\"int\"},{\"name\":\"Nombre\",\"type\":\"string\"}]}",
+                "id": "GCS5"
+            },
+            {
+                "name": "Contaminante",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "Contaminante",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "dataset": "datosSaludAmbiental",
+                        "table": "Contaminante",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "connection": "${conn(BigQuery Default)}"
+                    }
+                },
+                "inputSchema": [
+                    {
+                        "name": "GCS5",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Contaminante_PK\",\"type\":\"int\"},{\"name\":\"Nombre\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "id": "Contaminante"
+            },
+            {
+                "name": "GCS4",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "GCS4",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "referenceName": "biproyecto.Enfermedad.csv",
+                        "path": "gs://biproyecto/Enfermedad.csv",
+                        "format": "csv",
+                        "sampleSize": "1000",
+                        "enableQuotedValues": "false",
+                        "skipHeader": "true",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Enfermedad_PK\",\"type\":\"int\"},{\"name\":\"NombreEnfermedad\",\"type\":\"string\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Enfermedad_PK\",\"type\":\"int\"},{\"name\":\"NombreEnfermedad\",\"type\":\"string\"}]}",
+                "id": "GCS4"
+            },
+            {
+                "name": "Enfermedad",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "Enfermedad",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(BigQuery Default)}",
+                        "dataset": "datosSaludAmbiental",
+                        "table": "Enfermedad",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Enfermedad_PK\",\"type\":\"int\"},{\"name\":\"NombreEnfermedad\",\"type\":\"string\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Enfermedad_PK\",\"type\":\"int\"},{\"name\":\"NombreEnfermedad\",\"type\":\"string\"}]}",
+                "inputSchema": [
+                    {
+                        "name": "GCS4",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Enfermedad_PK\",\"type\":\"int\"},{\"name\":\"NombreEnfermedad\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "id": "Enfermedad"
+            },
+            {
+                "name": "GCS2",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "GCS2",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "referenceName": "biproyecto.Lugar.csv",
+                        "path": "gs://biproyecto/Lugar.csv",
+                        "format": "csv",
+                        "sampleSize": "1000",
+                        "enableQuotedValues": "false",
+                        "skipHeader": "true",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Lugar_PK\",\"type\":\"int\"},{\"name\":\"Localidad\",\"type\":\"string\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Lugar_PK\",\"type\":\"int\"},{\"name\":\"Localidad\",\"type\":\"string\"}]}",
+                "id": "GCS2"
+            },
+            {
+                "name": "Lugar",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "Lugar",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(BigQuery Default)}",
+                        "dataset": "datosSaludAmbiental",
+                        "table": "Lugar",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Lugar_PK\",\"type\":\"int\"},{\"name\":\"Localidad\",\"type\":\"string\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Lugar_PK\",\"type\":\"int\"},{\"name\":\"Localidad\",\"type\":\"string\"}]}",
+                "inputSchema": [
+                    {
+                        "name": "GCS2",
+                        "schema": "{\"type\":\"record\",\"name\":\"text\",\"fields\":[{\"name\":\"Lugar_PK\",\"type\":\"int\"},{\"name\":\"Localidad\",\"type\":\"string\"}]}"
+                    }
+                ],
+                "id": "Lugar"
+            },
+            {
+                "name": "GCS3",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "GCS3",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "referenceName": "biproyecto.Fecha.csv",
+                        "path": "gs://biproyecto/Fecha.csv",
+                        "format": "csv",
+                        "sampleSize": "1000",
+                        "enableQuotedValues": "false",
+                        "skipHeader": "true",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_PK\",\"type\":\"int\"},{\"name\":\"Ano\",\"type\":\"int\"},{\"name\":\"Semestre\",\"type\":\"int\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_PK\",\"type\":\"int\"},{\"name\":\"Ano\",\"type\":\"int\"},{\"name\":\"Semestre\",\"type\":\"int\"}]}",
+                "id": "GCS3"
+            },
+            {
+                "name": "Fecha",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "Fecha",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(BigQuery Default)}",
+                        "dataset": "datosSaludAmbiental",
+                        "table": "Fecha",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_PK\",\"type\":\"int\"},{\"name\":\"Ano\",\"type\":\"int\"},{\"name\":\"Semestre\",\"type\":\"int\"}]}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_PK\",\"type\":\"int\"},{\"name\":\"Ano\",\"type\":\"int\"},{\"name\":\"Semestre\",\"type\":\"int\"}]}",
+                "inputSchema": [
+                    {
+                        "name": "GCS3",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"Fecha_PK\",\"type\":\"int\"},{\"name\":\"Ano\",\"type\":\"int\"},{\"name\":\"Semestre\",\"type\":\"int\"}]}"
+                    }
+                ],
+                "id": "Fecha"
+            }
+        ],
+        "schedule": "0 1 */1 * *",
+        "engine": "spark",
+        "numOfRecordsPreview": 100,
+        "rangeRecordsPreview": {
+            "min": 1,
+            "max": "5000"
+        },
+        "maxConcurrentRuns": 1
+    },
+    "id": "05dfbb3d-5b43-4453-9892-c74d73f1db12",
+    "createdTimeMillis": 1763341279287,
+    "updatedTimeMillis": 1763341279287,
+    "configHash": -603333486,
+    "previousHash": "",
+    "revision": 0
+}
